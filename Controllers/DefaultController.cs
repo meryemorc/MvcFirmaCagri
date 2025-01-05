@@ -18,12 +18,19 @@ namespace MvcFirmaCagri.Controllers
         DbisTakipEntities db = new DbisTakipEntities();
         public ActionResult AktifCagrilar()
         {
-            var cagrilar = db.TblCagrilar.Where(x => x.Durum == true && x.CagrıFirma == 4).ToList();
+            var mail = (string)Session["Mail"];
+            var id=db.TblFirmalar.Where(x => x.Mail == mail.ToString()).Select(y => y.ID).FirstOrDefault();
+            
+            var cagrilar = db.TblCagrilar.Where(x => x.Durum == true && x.CagrıFirma == id).ToList();
             return View(cagrilar);
         }
         public ActionResult PasifCagrilar()
         {
-            var cagrilar = db.TblCagrilar.Where(x => x.Durum == false && x.CagrıFirma == 4).ToList();
+
+            var mail = (string)Session["Mail"];
+            var id = db.TblFirmalar.Where(x => x.Mail == mail.ToString()).Select(y => y.ID).FirstOrDefault();
+
+            var cagrilar = db.TblCagrilar.Where(x => x.Durum == false && x.CagrıFirma == id).ToList();
             return View(cagrilar);
         }
         [HttpGet]
@@ -34,9 +41,12 @@ namespace MvcFirmaCagri.Controllers
         [HttpPost]
         public ActionResult YeniCagri(TblCagrilar p)
         {
+
+            var mail = (string)Session["Mail"];
+            var id = db.TblFirmalar.Where(x => x.Mail == mail.ToString()).Select(y => y.ID).FirstOrDefault();
             p.Durum = true;
             p.Tarih = DateTime.Parse(DateTime.Now.ToShortDateString());
-            p.CagrıFirma = 4;
+            p.CagrıFirma = id ;
             db.TblCagrilar.Add(p);
             db.SaveChanges();
             return RedirectToAction("AktifCagrilar");
@@ -58,6 +68,18 @@ namespace MvcFirmaCagri.Controllers
             cagri.Aciklama = p.Aciklama;
             db.SaveChanges();
             return RedirectToAction("AktifCagrilar");
-    }
+        }
+        [HttpGet]
+        public ActionResult ProfilDuzenle()
+        {
+            var mail = (string)Session["Mail"];
+            var id = db.TblFirmalar.Where(x => x.Mail == mail.ToString()).Select(y => y.ID).FirstOrDefault();
+            var profil = db.TblFirmalar.Where(x=>x.ID == id).FirstOrDefault();
+            return View( profil);
+        }
+        public ActionResult AnaSayfa()
+        {
+            return View();
+        }
     } 
 }
